@@ -1,113 +1,132 @@
+'use client';
+
+import {useMemo, useRef, useState} from "react";
+import LottoNumberPickerWithTailWind from "@/components/LottoNumberPickerWithTailWind";
+import {Button} from "@/components/ui/button";
 import Image from "next/image";
+import {getRandomNumbers} from "@/lib/utils";
+
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    // 0: 미선택 , 1: 선택, 2:제외
+    const [pickNum, setPickNum] = useState(Array.from({length: 45}, (v, i) => 0));
+    const [isExclusionMode, setExclusionMode] = useState(false);
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    const ref = useRef<number[][]>([]);
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+    function handleClickRandom() {
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        // 현재 이미 선택된 번호와 제외된 번호를 따로 추출
+        let alreadySelectedNums:number[] = [];
+        let exclusionNums:number[] = [];
+        pickNum.forEach((v, i) => {
+            if(v==1) alreadySelectedNums.push(i+1);
+            if(v==2) exclusionNums.push(i+1);
+        });
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+        // 선택된 번호가 6개이면 초기화
+        if(alreadySelectedNums.length==6){
+            alreadySelectedNums.length=0;
+        }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+        // 랜덤번호 추출
+        const rNum = getRandomNumbers(alreadySelectedNums, exclusionNums);
+
+
+        let arr:number[] = [];
+        // 뽑은 번호를 반영
+        // 1) 번호가 6개일경우에만 초기화후 새로운 번호로 반영
+        // 2) 번호가 6개미만일경우에는 나머지번호만 랜덤추출
+        // 3) 제외할 번호는 항상 그대로 유지
+        setPickNum((pre)=>{
+            // 새로운배열반환
+            const newArr = pre.map((value, index) => {
+
+
+
+                // 제외할 번호는 그대로 유지
+                if(value == 2) return 2;
+
+                // 선택된 번호
+                if(rNum.includes(index+1)){
+                    arr.push(index+1);
+                    return 1;
+                }
+
+                // 선택 가능한 번호가 6개 미만일때 이전 선택 유지
+                if(rNum.length <6 && value ===1){
+                    arr.push(index+1);
+                    return 1;
+                }
+
+                return 0;
+            });
+            return newArr;
+        });
+
+        // 기록 보관을 위해 추첨번호 추출
+        ref.current.push(arr);
+        console.log(ref.current);
+
+
+
+    }
+
+    function handleClickReset(){
+        setPickNum(Array.from({length:45}, (_,i)=> 0));
+    }
+
+    return (
+        <main>
+            <div className="flex flex-col items-center gap-2">
+                <p className={"text-2xl font-bold mt-6"}>로또 번호 생성기</p>
+                <LottoNumberPickerWithTailWind
+                    pickNum={pickNum}
+                    setPickNum={setPickNum}
+                    isExclusionMode={isExclusionMode}/>
+
+                <div className="flex flex-col gap-2 w-[182px]">
+                    <Button onClick={handleClickRandom} disabled={isExclusionMode}>랜덤번호추천</Button>
+                    {isExclusionMode ?
+                        <Button onClick={()=>setExclusionMode(false)}
+                                className="btn-animated"
+                        >완료</Button>
+                        :
+                        <Button onClick={()=>setExclusionMode(true)}>제외할번호선택</Button>
+                    }
+                    <Button onClick={handleClickReset} disabled={isExclusionMode}>리셋</Button>
+                </div>
+                
+                <div className={"flex gap-2 items-center"}>
+                    {pickNum.filter(value => value == 1).length != 0 && <p className={"text-xl font-bold"}>선택한 번호 :</p>}
+
+                    {pickNum.map((value, index) => {
+                        if(value === 1){
+                            return <Image key={index} src={`/nums/ball_${index+1}.png`} alt={`${index+1}번`} width="45" height="45"/>;
+                        }
+                        return null;
+                    })}
+                </div>
+                <div className={"flex gap-3 mt-6"}>
+                    <div>
+                        {ref.current.length!=0 &&
+                            <>
+                                <p className={"text-xl font-bold"}>기록 :</p>
+                                <Button className={"p-1 w-[3.2rem] h-[2rem]"} onClick={()=>{ref.current =[]; setPickNum([...pickNum]);}}>삭제</Button>
+                            </>
+                        }
+                    </div>
+                    <div>
+                        {ref.current.map((value, index) => (
+                            <p key={index} className="flex mb-2 gap-1">
+                                {value.map((v,i)=>(
+                                    <Image key={i} src={`/nums/ball_${v}.png`} alt={`${v}번`} width="30" height="30"/>
+                                ))}
+                            </p>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
 }
