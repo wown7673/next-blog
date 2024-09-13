@@ -32,7 +32,6 @@ export default function Home() {
         // 랜덤번호 추출
         const rNum = getRandomNumbers(alreadySelectedNums, exclusionNums);
 
-
         let arr:number[] = [];
         // 뽑은 번호를 반영
         // 1) 번호가 6개일경우에만 초기화후 새로운 번호로 반영
@@ -66,7 +65,7 @@ export default function Home() {
 
         // 기록 보관을 위해 추첨번호 추출
         ref.current.push(arr);
-        console.log(ref.current);
+        //console.log(ref.current);
 
 
 

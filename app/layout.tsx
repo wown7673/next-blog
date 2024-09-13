@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "로또번호생성",
-  description: "로또 번호 추첨",
+  description: "로또 번호 추첨!!",
 };
 
 export default function RootLayout({
