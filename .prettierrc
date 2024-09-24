@@ -1,0 +1,9 @@
+{
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "endOfLine": "auto"  // 운영체제의 줄바꿈 방식을 자동으로 감지
+}
