@@ -9,12 +9,10 @@ export default function ContentsPage() {
 
 
   async function handleFileDownload() {
-    await downloadFile();
+    //await downloadFile("어벤져스.mp4");
   }
 
-  async function readFileList() {
-    await readDirFile();
-  }
+
 
   return (
     <main>
@@ -22,7 +20,6 @@ export default function ContentsPage() {
         <span>파일다운로드</span>
         <Button onClick={handleFileDownload}>다운로드</Button>
 
-        <Button onClick={readFileList}>파일목록</Button>
         
         
         <a href='/api/어벤져스.mp4/filedownload' download>파일다운로드</a>

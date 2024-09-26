@@ -22,12 +22,14 @@ export default function HomePage() {
     { name: '후추5', route: '/' },
   ];
 
+
+  // @ts-ignore
   return (
     <main className="flex justify-center border-4 min-h-screen items-center">
       <Carousel
         className="w-full max-w-xl"
         opts={{ loop: true }}
-        plugins={[AutoScroll({ speed: 2 })]}
+        plugins={[AutoScroll({ speed: 2 })] as any}
       >
         <CarouselContent>
           {menus.map((menu, index) => (

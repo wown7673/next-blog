@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // 절대 경로 설정
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,7 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"]  // 절대 경로에서 시작할 경로 설정
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

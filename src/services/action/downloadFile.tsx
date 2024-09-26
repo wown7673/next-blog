@@ -20,7 +20,7 @@ export default async function downloadFileFromSFTP(filename:string) {
   };
 
   // SFTP 서버 연결
-  await sftp.connect(config);
+  await sftp.connect(config as any);
 
   // 파일경로 설정
   const remoteFilePath = process.env.SERVER_FILE_DIR_PATH+filename;   // SFTP서버의 파일 경로
