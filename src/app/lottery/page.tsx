@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import LottoNumberPickerWithTailWind from '@/components/LottoNumberPickerWithTailWind';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { getRandomNumbers } from '@/lib/utils';
+import { getRandomNumbers } from '@/utils/utils';
 
 export default function LotteryPage() {
   // 0: 미선택 , 1: 선택, 2:제외

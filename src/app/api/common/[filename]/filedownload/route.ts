@@ -1,16 +1,22 @@
-import fs from 'fs';
-import { NextRequest } from 'next/server';
+import fs, { ReadStream } from 'fs';
+import { NextRequest, NextResponse } from 'next/server';
 
 
-export async function GET(req){
-  const fileFullPath = process.env.SERVER_FILE_DIR_PATH+filename;
+export async function GET(req:NextRequest , context : {params: {filename:string }}){
+  const { filename } = context.params;
+  const filenameWithPath = process.env.SERVER_FILE_DIR_PATH+filename;
 
-  Response.json({aa:11});
-  if(fs.existsSync(fileFullPath)){
-    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-    res.setHeader('Conentet-Type', 'mp4');
-    fs.createReadStream(fileFullPath).pipe(res); // 파일을 클라이언트에 전송
-  }else{
-    res.status(404).json({message:'파일을 찾을 수 없음'});
+  const fileBuffer = fs.readFileSync(filenameWithPath);
+
+
+
+  const jsonData = fileBuffer;
+  const status = 200;
+  const headers = {
+    'Content-Disposition': `attachment; filename=${filename}`,
+    'Content-Type': 'application/octet-stream'    // 모든파일형식을 수용하는 content-type
   }
+
+  return new NextResponse(jsonData, {headers:headers , status:status})
+
 }
