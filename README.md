@@ -1,10 +1,8 @@
 
-# 로또추첨
-next.js 를 사용하여 간단히 로또추첨사이트를 만듬
+# 웹 설명
+next.js 를 사용하여 다양한 기능을 만들어보자
+
+1. 서버 파일을 다운로드하는 기능
 
 # 배포
-vercel hobby플랜에 배포중임
-( https://next-lottery-eta.vercel.app/ )
-
-ㅇㅇ
-
+우분투 서버에 배포예정
