@@ -110,7 +110,7 @@ export default function LotteryPage() {
               return (
                 <Image
                   key={index}
-                  src={`/nums/ball_${index + 1}.png`}
+                  src={`/images/nums/ball_${index + 1}.png`}
                   alt={`${index + 1}번`}
                   width="45"
                   height="45"
@@ -143,7 +143,7 @@ export default function LotteryPage() {
                 {value.map((v, i) => (
                   <Image
                     key={i}
-                    src={`/nums/ball_${v}.png`}
+                    src={`/images/nums/ball_${v}.png`}
                     alt={`${v}번`}
                     width="30"
                     height="30"
