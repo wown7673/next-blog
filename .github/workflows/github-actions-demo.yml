@@ -41,8 +41,10 @@ jobs:
             cd /home/jjj/dev/next-blog
             
             # 포트 3000을 사용하는 프로세스를 종료1
-            pid=\$(ss -ltnp | grep ':3000' | awk '{print \$6}' | cut -d',' -f2 | cut -d'=' -f2)
-            if [ ! -z "\$pid" ]; then
+            echo "Checking for process using port 3000..."
+            pid=\$(ss -ltnp | grep ':3000' | awk '{print \$6}' | grep -o '[0-9]*')
+          
+            if [ -n "\$pid" ]; then
               echo "Killing process on port 3000 with PID: \$pid"
               kill -9 "\$pid"
             else
