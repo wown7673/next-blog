@@ -1,18 +1,43 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: 우분투서버 배포
+
+# main브랜치에 푸시될때 자동으로 실행
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  Explore-GitHub-Actions:
+  deploy:
+    name: 배포
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
+      # 1. 리포지토리 체크아웃
+      # https://github.com/marketplace/actions/checkout#Fetch-all-history-for-all-tags-and-branches
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+        with:
+          fetch-depth: 0  # 전체 git 히스토리를 가져와서 차이점을 감지
+
+      # 2. SSH 설정
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # 3. 서버에 변경된 파일 전송
+      - name: Sync files to server using rsync
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
+
+
+      # 4. 서버에서 재빌드 및 배포
+      #(  pm2를 사용하는 경우 : pm2 restart all  )
+      - name: Run build and deploy on server
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/jjj/dev/next-blog
+            npm install
+            npm run build
+            npm run start
+          EOF
