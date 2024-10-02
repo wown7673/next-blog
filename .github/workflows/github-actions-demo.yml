@@ -39,17 +39,10 @@ jobs:
         run: |
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/jjj/dev/next-blog
-            # 포트 3000을 사용하는 기존 프로세스를 확인하고 종료
-            echo "Checking for processes on port 3000..."
-            lsof -i :3000 -t || echo "No process found on port 3000."
-
-            # 프로세스가 있을 경우 종료
-            if lsof -i :3000 -t; then
-              echo "Killing process on port 3000..."
-              sudo lsof -i :3000 -t | xargs -r sudo kill -9
-            else
-              echo "No process running on port 3000."
-            fi
+            
+            # 포트 3000을 사용하는 기존 프로세스를 종료
+            echo "Killing process on port 3000 if it exists..."
+            sudo lsof -i :3000 -t | xargs -r sudo kill -9
 
             # 기존 빌드 폴더 삭제
             echo "Removing previous build files..."
