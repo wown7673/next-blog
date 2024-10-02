@@ -40,9 +40,14 @@ jobs:
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/jjj/dev/next-blog
             
-             # 실행 중인 모든 Node.js 프로세스를 종료
-            echo "Killing all Node.js processes..."
-            pkill -f node || echo "No Node.js processes were running."
+            # 포트 3000을 사용하는 프로세스를 종료
+            pid=\$(sudo ss -ltnp | grep :3000 | awk '{print \$6}' | cut -d ',' -f2 | cut -d '=' -f2)
+            if [ ! -z "\$pid" ]; then
+              echo "Killing process on port 3000 with PID: \$pid"
+              sudo kill -9 \$pid
+            else
+              echo "No process found on port 3000."
+            fi
 
             # 기존 빌드 폴더 삭제
             echo "Removing previous build files..."
