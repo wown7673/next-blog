@@ -40,9 +40,9 @@ jobs:
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/jjj/dev/next-blog
             
-            # 포트 3000을 사용하는 기존 프로세스를 종료
-            echo "Killing process on port 3000 if it exists..."
-            lsof -i :3000 -t | xargs -r sudo kill -9
+             # 실행 중인 모든 Node.js 프로세스를 종료
+            echo "Killing all Node.js processes..."
+            pkill -f node || echo "No Node.js processes were running."
 
             # 기존 빌드 폴더 삭제
             echo "Removing previous build files..."
