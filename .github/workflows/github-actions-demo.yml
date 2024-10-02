@@ -37,11 +37,9 @@ jobs:
       # nohup는 백그라운드에서 Next.js 서버 시작 (포트 3000에서) ( 리눅스에 기본설치되어있음)
       - name: Run build and deploy on server
         run: |
-          ssh -t -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/jjj/dev/next-blog
-            if lsof -i :3000 -t; then
-              kill -9 $(lsof -i :3000 -t)
-            fi
+            lsof -i :3000 -t | xargs -r kill -9
             rm -rf .next
             npm install
             npm run build
