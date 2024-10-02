@@ -42,7 +42,7 @@ jobs:
             
             # 포트 3000을 사용하는 기존 프로세스를 종료
             echo "Killing process on port 3000 if it exists..."
-            sudo lsof -i :3000 -t | xargs -r sudo kill -9
+            lsof -i :3000 -t | xargs -r sudo kill -9
 
             # 기존 빌드 폴더 삭제
             echo "Removing previous build files..."
