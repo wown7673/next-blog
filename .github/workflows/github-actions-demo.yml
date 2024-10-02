@@ -28,7 +28,7 @@ jobs:
       # 3. 서버에 변경된 파일 전송
       - name: Sync files to server using rsync
         run: |
-          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
+          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
 
 
       # 4. 서버에서 재빌드 및 배포
