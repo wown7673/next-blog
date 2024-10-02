@@ -50,6 +50,8 @@ jobs:
             else
               echo "No process found on port 3000."
             fi
+          
+            
 
             # 기존 빌드 폴더 삭제
             echo "Removing previous build files..."
