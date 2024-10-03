@@ -7,62 +7,10 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: 배포
-    runs-on: ubuntu-latest
+  test :
+    name : 셀프호스팅러너 테스트
+    runs-on: self-hosted
 
     steps:
-      # 1. 리포지토리 체크아웃
-      # https://github.com/marketplace/actions/checkout#Fetch-all-history-for-all-tags-and-branches
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # 전체 git 히스토리를 가져와서 차이점을 감지
-
-      # 2. SSH 설정
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # 3. 서버에 변경된 파일 전송
-      - name: Sync files to server using rsync
-        run: |
-          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
-
-
-      # 4. 서버에서 재빌드 및 배포
-      #(  pm2를 사용하는 경우 : pm2 restart all  )
-      # 포트 3000을 사용하는 기존 프로세스를 종료 (포트가 사용 중인 경우에만)
-      # nohup는 백그라운드에서 Next.js 서버 시작 (포트 3000에서) ( 리눅스에 기본설치되어있음)
-      - name: Run build and deploy on server
-        run: |
-          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-            cd /home/jjj/dev/next-blog
-            
-            # 포트 3000을 사용하는 프로세스를 종료
-            echo "Checking for process using port 3000..."
-            pid=\$(ss -ltnp | grep ':3000' | awk -F'pid=' '{print \$2}' | awk '{print \$1}')
-
-            if [ -n "\$pid" ]; then
-              echo "Killing process on port 3000 with PID: \$pid"
-              kill -9 \$pid
-            else
-              echo "No process found on port 3000."
-            fi
-          
-            
-
-            # 기존 빌드 폴더 삭제
-            echo "Removing previous build files..."
-            rm -rf .next
-
-            # 패키지 설치 및 빌드
-            echo "Installing dependencies and building the project..."
-            npm install
-            npm run build
-
-            # 백그라운드에서 서버 실행
-            echo "Starting Next.js server..."
-            nohup npm start &
-          EOF
+      - name: Test1
+        run : echo "연결되었나요?"
