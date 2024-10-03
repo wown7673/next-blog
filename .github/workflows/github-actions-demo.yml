@@ -14,3 +14,57 @@ jobs:
     steps:
       - name: Test1
         run : echo "연결되었나요?"
+
+  deploy :
+    name : 물리서버 배포
+    runs-on: self-hosted # 셀프호스팅 러너 사용
+
+    steps:
+      # 1. 리포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 git 히스토리를 가져와서 차이점을 감지
+
+      # 2. SSH 설정
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # GitHub Secrets에서 SSH 비밀키를 설정해야 함
+
+      # 3. 서버에 변경된 파일 전송
+      - name: Sync files to server using rsync
+        run: |
+          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/path/to/project
+
+      # 4. 서버에서 재빌드 및 배포
+      - name: Run build and deploy on server
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+            cd /path/to/project
+
+            # 5. 포트를 사용하는 기존 프로세스 종료
+            echo "Checking for process using port 3000..."
+            pid=\$(ss -ltnp | grep ':3000' | awk '{print \$6}' | cut -d',' -f2 | cut -d'=' -f2)
+
+            if [ -n "\$pid" ]; then
+              echo "Killing process on port 3000 with PID: \$pid"
+              kill -9 \$pid
+            else
+              echo "No process found on port 3000."
+            fi
+
+            # 6. 기존 빌드 폴더 삭제
+            echo "Removing previous build files..."
+            rm -rf .next
+
+            # 7. 패키지 설치 및 빌드
+            echo "Installing dependencies and building the project..."
+            npm install
+            npm run build
+
+            # 8. 새로 빌드된 서버 실행
+            echo "Starting Next.js server..."
+            nohup npm start &
+
+          EOF
