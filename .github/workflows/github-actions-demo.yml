@@ -34,7 +34,8 @@ jobs:
         run: |
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
           
-            source ~/.bashrc   # 환경 변수 로드
+             # PM2 경로를 명시적으로 설정
+            export PATH=\$PATH:/home/jjj/.nvm/versions/node/v20.17.0/bin
           
             cd /home/jjj/dev/next-blog
           
@@ -47,9 +48,9 @@ jobs:
 
             # PM2로 서버 실행 또는 재시작
             echo "Starting or reloading the application with PM2..."
-            pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
+             /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 start npm --name "next-blog" -- start || /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 reload "next-blog"
 
             # PM2 프로세스 리스트 저장
             echo "Saving PM2 process list..."
-            pm2 save
+            /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 save
           EOF
