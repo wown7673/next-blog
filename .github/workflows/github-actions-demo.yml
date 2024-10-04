@@ -36,9 +36,6 @@ jobs:
           
             source ~/.bashrc   # 환경 변수 로드
           
-            # PM2가 설치된 경로를 환경 변수로 설정
-            export PATH=\$PATH:/usr/local/bin 
-          
             cd /home/jjj/dev/next-blog
           
             # 패키지 설치 및 빌드
