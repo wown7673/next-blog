@@ -1,4 +1,4 @@
-name: 우분투서버 무중단 배포
+name: 우분투서버 배포
 
 on:
   push:
@@ -28,40 +28,35 @@ jobs:
       - name: Build and deploy using PM2
         run: |
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+            # PM2 경로 명시적으로 설정
+            export PATH=\$PATH:/home/jjj/.nvm/versions/node/v20.17.0/bin
 
-            source ~/.bashrc
-
-            # 프로젝트 폴더로 이동
             cd /home/jjj/dev/next-blog
 
-            # 패키지 설치
+            # 패키지 설치 및 빌드
             echo "Installing dependencies..."
             npm install
 
-            # 새 빌드 준비
             echo "Building the project..."
             npm run build
 
-            # 무중단 배포를 위한 .next 폴더 백업 및 교체
-            if [ -d ".next" ]; then
-              echo "Backing up the current .next folder..."
-              mv .next .next-backup
-            fi
+            # 기존 .next 폴더 백업
+            echo "Backing up the current .next folder..."
+            mv .next .next_backup || echo "No .next folder to backup"
 
-            # 새 빌드된 .next 폴더로 교체
+            # 빌드된 새로운 .next 폴더로 교체
             echo "Replacing the .next folder with the new build..."
-            mv .next .next-deploy
+            mv .next_backup .next || echo "No .next folder created"
 
             # PM2로 서버 실행 또는 재시작
             echo "Starting or reloading the application with PM2..."
-            pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
-
-            # 문제가 없으면 백업된 .next 폴더 삭제
-            echo "Cleaning up old .next backup..."
-            rm -rf .next-backup
+            /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 start npm --name "next-blog" -- start || /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 reload "next-blog"
 
             # PM2 프로세스 리스트 저장
             echo "Saving PM2 process list..."
-            pm2 save
+            /home/jjj/.nvm/versions/node/v20.17.0/bin/pm2 save
 
+            # 백업 폴더 삭제
+            echo "Cleaning up old .next backup..."
+            rm -rf .next_backup
           EOF
