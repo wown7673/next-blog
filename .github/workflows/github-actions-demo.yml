@@ -7,55 +7,46 @@ on:
       - main
 
 jobs:
-  test :
-    name : 셀프호스팅러너 테스트
-    runs-on: self-hosted
-
-    steps:
-      - name: Test1
-        run : echo "연결되었나요?"
-
   deploy:
-    name: 물리서버 배포
-    runs-on: ubuntu-latest
+    name: 물리서버 무중단 배포
+    runs-on: self-hosted
 
     steps:
       # 1. 리포지토리 체크아웃
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 git 히스토리를 가져와서 차이점을 감지
 
-      # 2. 원격 서버에 명령 실행
-      - name: Run commands on remote server via SSH
+      # 2. SSH를 통한 변경된 파일 전송
+      - name: Sync files to server using rsync
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_IP }}  # 서버 IP 주소
-          username: ${{ secrets.SERVER_USER }}  # SSH 사용자명
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 비밀키
-          port: 7777  # SSH 포트
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          port: 7777
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 변경된 코드 반영 및 재배포
+            rsync -avz --exclude='.git' --delete ./ /home/jjj/dev/next-blog
+
+      # 3. 서버에서 PM2를 사용한 빌드 및 무중단 배포
+      - name: Build and deploy using PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          port: 7777
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             cd /home/jjj/dev/next-blog
-
-            # 기존 프로세스 종료
-            echo "Checking for process using port 3000..."
-            pid=$(ss -ltnp | grep ':3000' | awk '{print $6}' | cut -d',' -f2 | cut -d'=' -f2)
-
-            if [ -n "$pid" ]; then
-              echo "Killing process on port 3000 with PID: $pid"
-              kill -9 $pid
-            else
-              echo "No process found on port 3000."
-            fi
-
-            # 기존 빌드 폴더 삭제
-            echo "Removing previous build files..."
-            rm -rf .next
-
-            # 프로젝트 빌드 및 배포
-            echo "Installing dependencies and building the project..."
+            echo "Installing dependencies..."
             npm install
+
+            echo "Building the project..."
             npm run build
 
-            # 새로 빌드된 서버 실행
-            echo "Starting Next.js server..."
-            nohup npm start &
+            echo "Starting or reloading the application with PM2..."
+            pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
+
+            echo "Saving PM2 process list..."
+            pm2 save
