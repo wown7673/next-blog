@@ -58,7 +58,7 @@ jobs:
             npm install
 
             echo "Building the project..."
-            npm run build
+            npm run build -- --clean
 
             # PM2로 서버 실행 또는 재시작
             echo "Starting or reloading the application with PM2..."
