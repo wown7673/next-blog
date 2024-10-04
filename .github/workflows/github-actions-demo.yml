@@ -1,6 +1,6 @@
 name: 우분투서버 배포
 
-# main브랜치에 푸시될때 자동으로 실행
+# main 브랜치에 푸시될 때 자동으로 실행
 on:
   push:
     branches:
@@ -18,26 +18,21 @@ jobs:
         with:
           fetch-depth: 0  # 전체 git 히스토리를 가져와서 차이점을 감지
 
-      # 2. SSH를 통한 변경된 파일 전송
-      - name: Sync files to server using rsync
-        uses: appleboy/ssh-action@v1.0.3
+      # 2. SSH 설정 (SSH 비밀 키를 사용하여 접속 설정)
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          port: 7777
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            rsync -avz --exclude='.git' --delete ./ /home/jjj/dev/next-blog
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. 서버에서 PM2를 사용한 빌드 및 무중단 배포
+      # 3. 변경된 파일 전송 (rsync를 사용하여 SSH를 통해 파일 동기화)
+      - name: Sync files to server using rsync
+        run: |
+          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
+
+      # 4. 서버에서 PM2를 사용한 빌드 및 무중단 배포
       - name: Build and deploy using PM2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          port: 7777
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             cd /home/jjj/dev/next-blog
             echo "Installing dependencies..."
             npm install
@@ -50,3 +45,4 @@ jobs:
 
             echo "Saving PM2 process list..."
             pm2 save
+          EOF
