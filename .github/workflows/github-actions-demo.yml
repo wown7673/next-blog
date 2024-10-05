@@ -62,7 +62,11 @@ jobs:
             export PATH=$PATH:/home/jjj/.nvm/versions/node/v20.17.0/bin
           
             cd /home/jjj/dev/next-blog
+          
+            echo "Stopping existing PM2 process..."
+            pm2 delete next-blog || true  # 기존 프로세스가 있으면 삭제
+          
             echo "Starting or reloading the application with PM2..."
-            pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
+            pm2 start npm --name "next-blog" -- start
             pm2 save
           EOF
