@@ -72,7 +72,7 @@ export default function LotteryPage() {
   return (
     <main>
       <div className="flex flex-col items-center gap-2">
-        <p className={'text-2xl font-bold mt-6'}>로또 번호 생성기-돼라!</p>
+        <p className={'text-2xl font-bold mt-6'}>로또 번호 생성기-10월5일아침</p>
         <LottoNumberPickerWithTailWind
           pickNum={pickNum}
           setPickNum={setPickNum}
