@@ -25,39 +25,42 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
 
-      # 3. 서버에 변경된 파일 전송
-      - name: Sync files to server using rsync
-        run: |
-          rsync -avz \
-          --exclude='.git' \
-          --exclude='node_modules' \
-          --exclude='.next' \
-          --delete \
-          -e 'ssh -p 7777 -o StrictHostKeyChecking=no' \
-          ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
+#      # 3. 서버에 변경된 파일 전송
+#      - name: Sync files to server using rsync
+#        run: |
+#          rsync -avz \
+#          --exclude='.git' \
+#          --exclude='node_modules' \
+#          --exclude='.next' \
+#          --delete \
+#          -e 'ssh -p 7777 -o StrictHostKeyChecking=no' \
+#          ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
 
-      # 4. npm install 실행
-      - name: Install dependencies on server
-        run: |
-          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /home/jjj/dev/next-blog
-            echo "Running npm install..."
-            npm install
-          EOF
+#      # 4. npm install 실행
+#      - name: Install dependencies on server
+#        run: |
+#          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+#            cd /home/jjj/dev/next-blog
+#            echo "Running npm install..."
+#            npm install
+#          EOF
 
-      # 5. 프로젝트 빌드
-      - name: Build project on server
-        run: |
-          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /home/jjj/dev/next-blog
-            echo "Building the project..."
-            npm run build
-          EOF
+#      # 5. 프로젝트 빌드
+#      - name: Build project on server
+#        run: |
+#          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+#            cd /home/jjj/dev/next-blog
+#            echo "Building the project..."
+#            npm run build
+#          EOF
 
       # 6. PM2로 애플리케이션 실행 또는 재시작
       - name: Start or reload application with PM2
         run: |
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            source ~/.bashrc
+            export PATH=$PATH:/home/jjj/.nvm/versions/node/v20.17.0/bin
+          
             cd /home/jjj/dev/next-blog
             echo "Starting or reloading the application with PM2..."
             pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
