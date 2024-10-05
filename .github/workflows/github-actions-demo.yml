@@ -53,3 +53,13 @@ jobs:
             echo "Building the project..."
             npm run build
           EOF
+
+      # 6. PM2로 애플리케이션 실행 또는 재시작
+      - name: Start or reload application with PM2
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/jjj/dev/next-blog
+            echo "Starting or reloading the application with PM2..."
+            pm2 start npm --name "next-blog" -- start || pm2 reload "next-blog"
+            pm2 save
+          EOF
