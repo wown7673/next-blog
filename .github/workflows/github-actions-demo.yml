@@ -26,5 +26,5 @@ jobs:
       - name: Echo message on the server
         run: |
           ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-            echo "This is a test message from GitHub Actions!"
+            wall "This is a test message from GitHub Actions!"
           EOF
