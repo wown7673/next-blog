@@ -24,15 +24,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. rsync를 통한 파일 동기화 및 서버로 전송
-      - name: Sync files to server using rsync
-        run: |
-          rsync -avz --exclude='.git' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
-
 
       # 3. 서버에 변경된 파일 전송
       - name: Sync files to server using rsync
         run: |
-          rsync -avz --exclude='.git' --exclude='node_modules' --delete -e 'ssh -p 7777 -o StrictHostKeyChecking=no' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
+          rsync -avz \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='.next' \
+          --delete \
+          -e 'ssh -p 7777 -o StrictHostKeyChecking=no' \
+          ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/jjj/dev/next-blog
 
-
+      # 4. npm install 실행
+      - name: Install dependencies on server
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/jjj/dev/next-blog
+            echo "Running npm install..."
+            npm install
+          EOF
