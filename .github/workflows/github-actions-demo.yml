@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: 물리서버에 echo 출력
+    name: 코드동기화/빌드/배포 해보자
     runs-on: self-hosted
 
     steps:
@@ -43,4 +43,13 @@ jobs:
             cd /home/jjj/dev/next-blog
             echo "Running npm install..."
             npm install
+          EOF
+
+      # 5. 프로젝트 빌드
+      - name: Build project on server
+        run: |
+          ssh -p 7777 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/jjj/dev/next-blog
+            echo "Building the project..."
+            npm run build
           EOF
